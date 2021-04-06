@@ -1,6 +1,7 @@
-:- use_module(library(http/json)).
+ :- use_module(library(http/json)).
 :- use_module(library(http/http_client)).
 :- use_module(library(http/http_json)).
+
 
 % for testing
 % parses the json file to a prolog json atom
@@ -54,7 +55,6 @@ get_name([_|T], N) :-
     get_name(T,N).
 
 
-% http_get('https://api.spoonacular.com/recipes/complexSearch?apiKey=7fbe21deb29241469b08259f72f0e2a4&maxFat=25&number=1&addRecipeInformation=true', JSON, []).
 % try make_request(JSON, "&maxFat=25&number=1&addRecipeInformation=true").
 make_request(JSON, SearchString):-
     apiKey(Key),
