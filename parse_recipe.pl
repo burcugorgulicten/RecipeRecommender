@@ -1,35 +1,52 @@
 :- use_module(library(http/json)).
 :- use_module(library(http/http_client)).
 :- use_module(library(http/http_json)).
-:- ensure_loaded([list]).
+:- ensure_loaded([list, write_recipes]).
+
 
 
 % for testing
-% parses the json file to a prolog json atom
+% parses the json file eg to a prolog json atom,
+% gets the recipes, and writes them to a file
 get_dict_from_json_file(Recipes) :-
   open('./eg.json', read, Stream),
   json_read(Stream, json(JsonArr)),
-  get_results(JsonArr, R),
-  get_names(R, Names),
-  get_times(R, Times),
-  get_ingredientLists(R, Ingredients),
-  zip(Ingredients, Times, Recipes1),
-  zip2(Names, Recipes1, Recipes),
+  get_recipes(JsonArr, Recipes),
+  write_to_file(Recipes),
   close(Stream).
 
 
 
 % Makes the request with the given params and gets 
-% the recipe names
+% the recipes, and writes them to a file
 % try get_files(R, "&cuisine=italian&number=1&addRecipeInformation=true").
 get_files(Recipes, SearchString):-
     make_request(json(JsonArr), SearchString),
+    get_recipes(JsonArr, Recipes),
+    write_to_file(Recipes).
+
+
+
+% get_recipes(JSON, R) is true if R is
+% the list of recipes with 
+% Recipe Name
+% Ingredients
+% Instructions
+% Prep time
+% url for more info
+% given the json object JSON
+get_recipes(JsonArr, Recipes):-
     get_results(JsonArr, R),
     get_names(R, Names),
     get_times(R, Times),
+    get_infoLinks(R, Infolinks),
     get_ingredientLists(R, Ingredients),
-    zip(Ingredients, Times, Recipes1),
-    zip2(Names, Recipes1, Recipes).
+    get_instructionsList(R, Instructions),
+    zip(Instructions, Infolinks, Recipes1),
+    zip2(Ingredients, Recipes1, Recipes2),
+    zip2(Times, Recipes2, Recipes3),
+    zip2(Names, Recipes3, Recipes).
+
 
 
 % get_results(L, R) is true if the json object L has 
@@ -67,6 +84,27 @@ get_name([_|T], N) :-
 
 
 
+% get_infoLinks(L,N) is true if N
+% is the list of URLs in the array L
+% i,e,. L is list of recipes and N is
+% list of sourceUrl of the recipes
+get_infoLinks([], []).
+
+get_infoLinks([json(H)|T], [Link|Links]):-
+    get_infoLink(H, Link),
+    get_infoLinks(T,Links).
+
+
+% get_infoLink([H|T], N) is true if H has
+% the element "sourceUrl" in the array
+% and N is the value of the url
+% i,e,. the array is one json object (one recipe)
+% and sourceUrl is the url of the given
+% recipe
+get_infoLink([sourceUrl=N|_], more_info(N)).
+
+get_infoLink([_|T], N) :-
+    get_infoLink(T,N).
 
 
 % get_times(L,T) is true if T
@@ -90,6 +128,51 @@ get_time([readyInMinutes=N|_], time(N)).
 get_time([_|T], N) :-
     get_time(T,N).
 
+
+
+
+% step_instruction(L, N) is true if 
+% N is the instruction given the
+% current step
+step_instruction([step=N|_], N).
+
+step_instruction([_|T], N) :-
+    step_instruction(T,N).
+
+
+
+% step_instructions(L1, L2) is true if 
+% L2 is the list of instructions in the
+% given analyzedInstructions L1
+step_instructions([], []).
+
+step_instructions([json(H)|T], [I|Is]):-
+    step_instruction(H, I),
+    step_instructions(T,Is).
+
+
+
+% get_instructionsList(L1, L2) is true if L2 is 
+% the list of instructions of the given 
+% list of recipes L1
+get_instructionsList([], []).
+
+get_instructionsList([json(H)|T], [Instruction|Instructions]):-
+    get_instructions(H, Instruction),
+    get_instructionsList(T,Instructions).
+
+
+
+% get_instructions(L, instructions(S)) is true if S is the 
+% instructions in the given recipe L
+get_instructions([analyzedInstructions=[]|_], instructions("No Information")).
+
+get_instructions([analyzedInstructions=[json(N)]|_], instructions(Ins)):-
+    get_steps(N, S),
+    step_instructions(S, Ins).
+
+get_instructions([_|T], N) :-
+    get_instructions(T,N).
 
 
 % get_steps(L1,L2) is true if L2
@@ -137,8 +220,7 @@ get_ingredients([analyzedInstructions=[json(N)]|_], ingredients(UniqueIngs)):-
     get_steps(N, S),
     step_ingredients(S, I),
     get_ingredient_names(I, IN),
-    set(IN, UniqueIngs),
-    write(UniqueIngs).
+    set(IN, UniqueIngs).
 
 get_ingredients([_|T], N) :-
     get_ingredients(T,N).
@@ -157,6 +239,7 @@ get_ingredient_names([json(H)|T], [I|Is]):-
 find_name([name=N|_], N).
 find_name([_|T], N) :-
     find_name(T,N).
+
 
 
 % try make_request(JSON, "&maxFat=25&number=1&addRecipeInformation=true").
