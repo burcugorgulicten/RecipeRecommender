@@ -3,6 +3,8 @@
 :- use_module(library(http/http_json)).
 :- ensure_loaded([list, write_recipes]).
 
+recipeInformation('&addRecipeInformation=true').
+numberOfResults('&number=1').
 
 
 % for testing
@@ -19,7 +21,7 @@ get_dict_from_json_file(Recipes) :-
 
 % Makes the request with the given params and gets 
 % the recipes, and writes them to a file
-% try get_files(R, "&cuisine=italian&number=1&addRecipeInformation=true").
+% try get_files(R, "&cuisine=italian").
 get_files(Recipes, SearchString):-
     make_request(json(JsonArr), SearchString),
     get_recipes(JsonArr, Recipes),
@@ -242,11 +244,15 @@ find_name([_|T], N) :-
 
 
 
-% try make_request(JSON, "&maxFat=25&number=1&addRecipeInformation=true").
+% try make_request(JSON, "&maxFat=25").
 make_request(JSON, SearchString):-
     apiKey(Key),
+    recipeInformation(AddRecipeInfo),
+    numberOfResults(No),
     atom_concat('https://api.spoonacular.com/recipes/complexSearch?apiKey=', Key, URLwithKey),
-    atom_concat(URLwithKey, SearchString, URL),
+    atom_concat(URLwithKey, AddRecipeInfo, URLwithInfo),
+    atom_concat(URLwithInfo, No, URLwithNo),
+    atom_concat(URLwithNo, SearchString, URL),
     http_get(URL,
             JSON, 
             []).
