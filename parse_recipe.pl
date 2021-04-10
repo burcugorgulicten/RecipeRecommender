@@ -6,7 +6,6 @@
 recipeInformation('&addRecipeInformation=true').
 numberOfResults('&number=1').
 
-
 % for testing
 % parses the json file eg to a prolog json atom,
 % gets the recipes, and writes them to a file
@@ -23,7 +22,7 @@ get_dict_from_json_file(Recipes) :-
 % the recipes, and writes them to a file
 % try get_files(R, "&cuisine=italian").
 get_files(Recipes, SearchString):-
-    make_request(json(JsonArr), SearchString),
+    try_request(json(JsonArr), SearchString),
     get_recipes(JsonArr, Recipes),
     write_to_file(Recipes).
 
@@ -242,6 +241,19 @@ find_name([name=N|_], N).
 find_name([_|T], N) :-
     find_name(T,N).
 
+
+
+% try_request(JSON, SearchString) tries to
+% make an api request with the SearchString
+% If successful returns the JSON, if not
+% prints the error out and exits.
+% try try_request(JSON, "asdf"). to make
+% it catch an error
+try_request(JSON, SearchString):-
+    catch(
+        make_request(JSON, SearchString),
+        _,
+        false).
 
 
 % try make_request(JSON, "&maxFat=25").
