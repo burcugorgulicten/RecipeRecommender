@@ -4,15 +4,25 @@
 % question(Q,L,C0,C1) is true if C0-C1 is the constraints from question Q-L
 question([what,is | L0],L1,C0,C1) :-
     noun_phrase(L0,L1,C0,C1).
+question([what,is | L0],L3,C0,C3) :-
+    noun_phrase(L0,L1,C0,C1),
+    noun_phrase(L1,L2,C1,C2),
+    verb_phrase(L2,L3,C2,C3).
 question([what | L0],L4,C0,C4) :-
     noun_phrase(L0,L1,C0,C1),
     verb_phrase(L1,L2,C1,C2),
     noun_phrase(L2,L3,C2,C3),
     verb_phrase(L3,L4,C3,C4).
-question([find | L0],L3,C0,C3) :-
+question([find | L0],L4,C0,C4) :-
     noun_phrase(L0,L1,C0,C1),
     noun_phrase(L1,L2,C1,C2),
-    mp(L2,L3,C2,C3).
+    noun_phrase(L2,L3,C2,C3),
+    mp(L3,L4,C3,C4).
+question([find | L0],L4,C0,C4) :-
+    noun_phrase(L0,L1,C0,C1),
+    noun_phrase(L1,L2,C1,C2),
+    noun_phrase(L2,L3,C2,C3),
+    verb_phrase(L3,L4,C3,C4).
 
 % A noun phrase is a determiner followed by adjectives followed
 % by a noun followed by an optional modifying phrase:
@@ -34,6 +44,8 @@ verb_phrase(L0,L4,C0,C3) :-
     adj(L1,L2,C0,C1),
     mp(L2,L3,C1,C2),
     mp(L3,L4,C2,C3).
+verb_phrase([to | L0],L1,C0,C1) :-
+    verb_phrase(L0,L1,C0,C1).
 
 % a modifying phrase contains either a time or ingredient constraint
 mp(L0,L3,C0,C1) :-
