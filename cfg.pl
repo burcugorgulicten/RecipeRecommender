@@ -106,6 +106,17 @@ max_constraint(L,L).
 time_constraint([Num,minutes | L],L,['&maxReadyTime=',Num | C],C) :-
     number(Num).
 
+time_constraint([Num,hour | L],L,['&maxReadyTime=',Mins | C],C) :-
+    number(Num),
+    Mins is Num * 60.
+
+time_constraint([Num,hours | L],L,['&maxReadyTime=',Mins | C],C) :-
+    number(Num),
+    Mins is Num * 60.
+
+time_constraint([an, hour | L],L,['&maxReadyTime=',60 | C],C).
+time_constraint([half, an, hour | L],L,['&maxReadyTime=',30 | C],C).
+
 % Determiners provide no additional constraints
 det([the | L],L,C,C).
 det([a | L],L,C,C).
