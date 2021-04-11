@@ -4,9 +4,8 @@
 q(N, SearchString) :-
     write("Enter recipe query: "), flush_output(current_output),
     readln(Ln),
-    %get_lower_case(Ln, LC),
-    %once(get_search_string(LC, SearchString)),
-    once(get_search_string(Ln, SearchString)),
+    get_lower_case(Ln, LC),
+    once(get_search_string(LC, SearchString)),
     once(get_files(Recipes, SearchString)),
     read_names(Recipes, N).
 
@@ -14,9 +13,8 @@ q(N, SearchString) :-
 q_test_JSON(Names, SearchString):-
     write("Enter recipe query: "), flush_output(current_output),
     readln(Ln),
-    %get_lower_case(Ln, LC),
-    %once(get_search_string(LC, SearchString)),
-    once(get_search_string(Ln, SearchString)),
+    get_lower_case(Ln, LC),
+    once(get_search_string(LC, SearchString)),
     once(get_dict_from_json_file(Recipes)),
     read_names(Recipes, Names).
 
@@ -25,9 +23,8 @@ q_test_JSON(Names, SearchString):-
 q_test(SearchString) :-
     write("Enter recipe query: "), flush_output(current_output),
     readln(Ln),
-    %get_lower_case(Ln, LC),
-    %once(get_search_string(LC, SearchString)),
-    once(get_search_string(Ln, SearchString)).
+    get_lower_case(Ln, LC),
+    once(get_search_string(LC, SearchString)).
 
 % get_search_string(Q,S) is true if C is a search string with constraints from question Q
 get_search_string(Q,S) :-
@@ -58,9 +55,7 @@ read_name([H|T], N):-
     read_name(T, N).
 
 % get_lower_case(L, LCs) is true if LCs
-% is array of lowercase strings of the strings
-% in L
+% is array L with the first atom lowercase
 get_lower_case([], []).
-get_lower_case([H|T], [LC|LCs]):-
-    string_lower(H, LC),
-    get_lower_case(T, LCs).
+get_lower_case([H|T], [LC|T]):-
+    downcase_atom(H, LC).

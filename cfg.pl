@@ -2,9 +2,9 @@
 :- ensure_loaded(['wordnet/wn_s', 'wordnet/wn_hyp']).
 
 % question(Q,L,C0,C1) is true if C0-C1 is the constraints from question Q-L
-question(['What',is | L0],L1,C0,C1) :-
+question([what,is | L0],L1,C0,C1) :-
     noun_phrase(L0,L1,C0,C1).
-question(['What' | L0],L4,C0,C4) :-
+question([what | L0],L4,C0,C4) :-
     noun_phrase(L0,L1,C0,C1),
     verb_phrase(L1,L2,C1,C2),
     noun_phrase(L2,L3,C2,C3),
@@ -42,6 +42,7 @@ ingredient([Food | L],L,['&includeIngredients=',Food | C],C) :-
 max_constraint([at,most | L],L).
 max_constraint([under | L],L).
 max_constraint([less,than | L],L).
+max_constraint([no,more,than | L],L).
 max_constraint(L,L).
 
 time_constraint([Num,minutes | L],L,['&maxReadyTime=',Num | C],C) :-
@@ -49,6 +50,7 @@ time_constraint([Num,minutes | L],L,['&maxReadyTime=',Num | C],C) :-
 
 det([the | L],L,C,C).
 det([a | L],L,C,C).
+det([an | L],L,C,C).
 det(L,L,C,C).
 
 % adjectives(L0,L2,C0,C2) is true if
@@ -59,18 +61,27 @@ adjectives(L0,L2,C0,C2) :-
 adjectives(L,L,C,C).
 
 adj([C1, C3 | L],L, ['&cuisine=',Cuisine|C],C) :-
-    atom_concat(C1,' ',C2),
+    atom_concat(C1,'%20',C2),
     atom_concat(C2,C3,Cuisine),
-    cuisine(Cuisine).
+    downcase_atom(Cuisine,LCuisine),
+    cuisine(LCuisine).
 adj([Cuisine | L],L, ['&cuisine=',Cuisine|C],C) :-
-    cuisine(Cuisine).
+    downcase_atom(Cuisine,LCuisine),
+    cuisine(LCuisine).
 
 adj([D1, D3 | L],L, ['&diet=',Diet|C],C) :-
-    atom_concat(D1,' ',D2),
+    atom_concat(D1,'%20',D2),
     atom_concat(D2,D3,Diet),
-    diet(Diet).
+    downcase_atom(Diet,LDiet),
+    diet(LDiet).
 adj([Diet | L],L, ['&diet=',Diet|C],C) :-
-    diet(Diet).
+    downcase_atom(Diet,LDiet),
+    diet(LDiet).
+adj([D1, '-', D3 | L],L, ['&diet=',Diet|C],C) :-
+    atom_concat(D1,'-',D2),
+    atom_concat(D2,D3,Diet),
+    downcase_atom(Diet,LDiet),
+    diet(LDiet).
 
 
 % food(Word) is true if Word is an ingredient
@@ -117,44 +128,44 @@ food_cat(101789740).  % poultry
 food_cat(107829412).  % sauce
 
 % Supported cuisines
-cuisine('African').
-cuisine('American').
-cuisine('British').
-cuisine('Cajun').
-cuisine('Caribbean').
-cuisine('Chinese').
-cuisine('Eastern European').
-cuisine('European').
-cuisine('French').
-cuisine('German').
-cuisine('Greek').
-cuisine('Indian').
-cuisine('Irish').
-cuisine('Italian').
-cuisine('Japanese').
-cuisine('Jewish').
-cuisine('Korean').
-cuisine('Latin American').
-cuisine('Mediterranean').
-cuisine('Mexican').
-cuisine('Middle Eastern').
-cuisine('Nordic').
-cuisine('Southern').
-cuisine('Spanish').
-cuisine('Thai').
-cuisine('Vietnamese').
+cuisine(african).
+cuisine(american).
+cuisine(british).
+cuisine(cajun).
+cuisine(caribbean).
+cuisine(chinese).
+cuisine('eastern%20european').
+cuisine(european).
+cuisine(french).
+cuisine(german).
+cuisine(greek).
+cuisine(indian).
+cuisine(irish).
+cuisine(italian).
+cuisine(japanese).
+cuisine(jewish).
+cuisine(korean).
+cuisine('latin%20american').
+cuisine(mediterranean).
+cuisine(mexican).
+cuisine('middle%20eastern').
+cuisine(nordic).
+cuisine(southern).
+cuisine(spanish).
+cuisine(thai).
+cuisine(vietnamese).
 
 % Supported diets
-diet('Gluten free').
-diet('Ketogenic').
-diet('Vegetarian').
-diet('Lacto-Vegetarian').
-diet('Ovo-Vegetarian').
-diet('Vegan').
-diet('Pescetarian').
-diet('Paleo').
-diet('Primal').
-diet('Whole30').
+diet('gluten%20free').
+diet(ketogenic).
+diet(vegetarian).
+diet('lacto-vegetarian').
+diet('ovo-vegetarian').
+diet(vegan).
+diet(pescetarian).
+diet(paleo).
+diet(primal).
+diet('whole30').
 
 
 % for testing
