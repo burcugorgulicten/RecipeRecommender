@@ -29,7 +29,7 @@ q_test(SearchString) :-
 % get_search_string(Q,S) is true if C is a search string with constraints from question Q
 get_search_string(Q,S) :-
     question(Q,End,C,[]),
-    member(End,[[],['?']]),
+    member(End,[[],['?'],['.']]),
     combine(C,S).
 
 % combine(Lst, S) is true if S is the concatentation of all atoms in Lst

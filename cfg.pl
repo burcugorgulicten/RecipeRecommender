@@ -9,6 +9,10 @@ question([what | L0],L4,C0,C4) :-
     verb_phrase(L1,L2,C1,C2),
     noun_phrase(L2,L3,C2,C3),
     verb_phrase(L3,L4,C3,C4).
+question([find | L0],L3,C0,C3) :-
+    noun_phrase(L0,L1,C0,C1),
+    noun_phrase(L1,L2,C1,C2),
+    mp(L2,L3,C2,C3).
 
 % A noun phrase is a determiner followed by adjectives followed
 % by a noun followed by an optional modifying phrase:
@@ -25,9 +29,13 @@ verb_phrase(L0,L4,C0,C3) :-
     noun_phrase(L1,L2,C0,C1),
     mp(L2,L3,C1,C2),
     mp(L3,L4,C2,C3).
+verb_phrase(L0,L4,C0,C3) :-
+    verbs(L0,L1),
+    adj(L1,L2,C0,C1),
+    mp(L2,L3,C1,C2),
+    mp(L3,L4,C2,C3).
 
 % a modifying phrase contains either a time or ingredient constraint
-mp(L,L,C,C).
 mp(L0,L3,C0,C1) :-
     p(L0,L1),
     max_constraint(L1,L2),
@@ -36,6 +44,13 @@ mp(L0,L3,C0,C2) :-
     p(L0,L1),
     det(L1,L2,C0,C1),
     ingredient(L2,L3,C1,C2).
+mp(L0,L2,C0,C1) :-
+    p(L0,L1),
+    noun_phrase(L1,L2,C0,C1).
+mp([that | L0],L2,C0,C2) :-
+    noun_phrase(L0,L1,C0,C1),
+    verb_phrase(L1,L2,C1,C2).
+mp(L,L,C,C).
 
 ingredient([Food | L],L,['&includeIngredients=',Food | C],C) :-
     food(Food).
@@ -84,6 +99,11 @@ adj([D1, '-', D3 | L],L, ['&diet=',Diet|C],C) :-
     downcase_atom(Diet,LDiet),
     diet(LDiet).
 
+adj([Word | L],L,C,C) :-
+    s(_,_,Word,a,_,_).
+adj([Word | L],L,C,C) :-
+    s(_,_,Word,s,_,_).
+
 
 % food(Word) is true if Word is an ingredient
 food(Word) :-
@@ -102,9 +122,6 @@ food(PluralWord) :-
     atom_concat(Word,es,PluralWord),
     food(Word).
 
-% adj([Word | L],L) :-
-%     s(_,_,Word,a,_,_).
-
 noun([Word | L],L) :-
     s(_,_,Word,n,_,_).
 noun([PluralWord | L],L) :-
@@ -113,9 +130,16 @@ noun([PluralWord | L],L) :-
 noun([PluralWord | L],L) :-
     atom_concat(Word,es,PluralWord),
     s(_,_,Word,n,_,_).
+noun([something | L],L).
+noun([me | L],L).
 
 verb([Word | L],L) :-
     s(_,_,Word,v,_,_).
+
+verbs(L0,L2) :-
+    verb(L0,L1),
+    verbs(L1,L2).
+verbs(L,L).
 
 p([with | L],L).
 p([in | L],L).
