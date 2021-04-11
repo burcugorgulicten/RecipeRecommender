@@ -1,6 +1,9 @@
 :- discontiguous s/6, s/4.  % suppress warnings
 :- ensure_loaded(['wordnet/wn_s', 'wordnet/wn_hyp']).
 
+% This code was initially based on Figure 13.12 of Poole and Mackworth, 
+% Artificial Intelligence: foundations of computational agents, Cambridge, 2017
+
 % question(Q,L,C0,C1) is true if C0-C1 is the constraints from question Q-L
 question([what,is | L0],L1,C0,C1) :-
     noun_phrase(L0,L1,C0,C1).
@@ -13,19 +16,33 @@ question([what | L0],L4,C0,C4) :-
     verb_phrase(L1,L2,C1,C2),
     noun_phrase(L2,L3,C2,C3),
     verb_phrase(L3,L4,C3,C4).
-question([find | L0],L4,C0,C4) :-
-    noun_phrase(L0,L1,C0,C1),
+question(L0,L4,C0,C4) :-
+    verb_phrase(L0,[for | L1],C0,C1),
     noun_phrase(L1,L2,C1,C2),
     noun_phrase(L2,L3,C2,C3),
     mp(L3,L4,C3,C4).
-question([find | L0],L4,C0,C4) :-
-    noun_phrase(L0,L1,C0,C1),
+question(L0,L5,C0,C5) :-
+    verb_phrase(L0,[for | L1],C0,C1),
     noun_phrase(L1,L2,C1,C2),
     noun_phrase(L2,L3,C2,C3),
-    verb_phrase(L3,L4,C3,C4).
+    noun_phrase(L3,L4,C3,C4),
+    verb_phrase(L4,L5,C4,C5).
+question(L0,L4,C0,C4) :-
+    verb_phrase(L0,L1,C0,C1),
+    noun_phrase(L1,L2,C1,C2),
+    noun_phrase(L2,L3,C2,C3),
+    mp(L3,L4,C3,C4).
+question(L0,L5,C0,C5) :-
+    verb_phrase(L0,L1,C0,C1),
+    noun_phrase(L1,L2,C1,C2),
+    noun_phrase(L2,L3,C2,C3),
+    noun_phrase(L3,L4,C3,C4),
+    verb_phrase(L4,L5,C4,C5).
+question(L0,L2,C0,C2) :-
+    noun_phrase(L0,L1,C0,C1),
+    mp(L1,L2,C1,C2).
 
-% A noun phrase is a determiner followed by adjectives followed
-% by a noun followed by an optional modifying phrase:
+% noun_phrase(L0,L1,C0,C1) is true if C0-C1 is the constraints from noun phrase L0-L1
 noun_phrase(L0,L4,C0,C3) :-
     det(L0,L1,C0,C1),
     adjectives(L1,L2,C1,C2),
@@ -33,21 +50,21 @@ noun_phrase(L0,L4,C0,C3) :-
     mp(L3,L4,C2,C3).
 noun_phrase(L,L,C,C).
 
-% a verb phrase is a verb followed by a noun phrase and one or two optional mps
-verb_phrase(L0,L4,C0,C3) :-
-    verb(L0,L1),
-    noun_phrase(L1,L2,C0,C1),
-    mp(L2,L3,C1,C2),
-    mp(L3,L4,C2,C3).
+% verb_phrase(L0,L1,C0,C1) is true if C0-C1 is the constraints from verb phrase L0-L1
 verb_phrase(L0,L4,C0,C3) :-
     verbs(L0,L1),
     adj(L1,L2,C0,C1),
     mp(L2,L3,C1,C2),
     mp(L3,L4,C2,C3).
+verb_phrase(L0,L4,C0,C3) :-
+    verb(L0,L1),
+    noun_phrase(L1,L2,C0,C1),
+    mp(L2,L3,C1,C2),
+    mp(L3,L4,C2,C3).
 verb_phrase([to | L0],L1,C0,C1) :-
     verb_phrase(L0,L1,C0,C1).
 
-% a modifying phrase contains either a time or ingredient constraint
+% A modifying phrase contains either a time or ingredient constraint
 mp(L0,L3,C0,C1) :-
     p(L0,L1),
     max_constraint(L1,L2),
@@ -65,6 +82,7 @@ mp([that | L0],L2,C0,C2) :-
     verb_phrase(L1,L2,C1,C2).
 mp(L,L,C,C).
 
+% Ingredient constraint
 ingredient([Food | L],L,['&includeIngredients=',Food | C],C) :-
     food(Food).
 
@@ -78,6 +96,7 @@ additional_ingredients([Det | L0],L1,C0,C1) :-
     additional_ingredients(L0,L1,C0,C1).
 additional_ingredients(L,L,C,C).
 
+% Time constraint
 max_constraint([at,most | L],L).
 max_constraint([under | L],L).
 max_constraint([less,than | L],L).
@@ -87,14 +106,17 @@ max_constraint(L,L).
 time_constraint([Num,minutes | L],L,['&maxReadyTime=',Num | C],C) :-
     number(Num).
 
+% Determiners provide no additional constraints
 det([the | L],L,C,C).
 det([a | L],L,C,C).
 det([an | L],L,C,C).
+det([some | L],L,C,C).
 det(L,L,C,C).
 
 det(the).
 det(a).
 det(an).
+det(some).
 
 % adjectives(L0,L2,C0,C2) is true if
 % L0-L2 is a sequence of adjectives that imposes constraints C0-C2
@@ -103,6 +125,7 @@ adjectives(L0,L2,C0,C2) :-
     adjectives(L1,L2,C1,C2).
 adjectives(L,L,C,C).
 
+% Cuisine constraint
 adj([C1, C3 | L],L, ['&cuisine=',Cuisine|C],C) :-
     atom_concat(C1,'%20',C2),
     atom_concat(C2,C3,Cuisine),
@@ -112,6 +135,7 @@ adj([Cuisine | L],L, ['&cuisine=',Cuisine|C],C) :-
     downcase_atom(Cuisine,LCuisine),
     cuisine(LCuisine).
 
+% Diet constraint
 adj([D1, D3 | L],L, ['&diet=',Diet|C],C) :-
     atom_concat(D1,'%20',D2),
     atom_concat(D2,D3,Diet),
@@ -129,6 +153,7 @@ adj([D1, '-', D3 | L],L, ['&diet=',Diet|C],C) :-
 adj([Word | L],L,C,C) :-
     s(_,_,Word,a,_,_).
 adj([Word | L],L,C,C) :-
+    dif(Word,chicken),
     s(_,_,Word,s,_,_).
 
 
@@ -160,8 +185,12 @@ noun([PluralWord | L],L) :-
 noun([something | L],L).
 noun([me | L],L).
 
+verb([has | L],L).
 verb([Word | L],L) :-
     s(_,_,Word,v,_,_).
+verb([Word | L],L) :-
+    atom_concat(W,s,Word),
+    s(_,_,W,v,_,_).
 
 verbs(L0,L2) :-
     verb(L0,L1),
@@ -172,6 +201,8 @@ p([with | L],L).
 p([in | L],L).
 p([within | L],L).
 p([using | L],L).
+p([that | L0],L1) :-
+    verb(L0,L1).
 
 % Food categories
 food_cat(107555863).  % food
