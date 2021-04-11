@@ -32,9 +32,10 @@ mp(L0,L3,C0,C1) :-
     p(L0,L1),
     max_constraint(L1,L2),
     time_constraint(L2,L3,C0,C1).
-mp(L0,L2,C0,C1) :-
+mp(L0,L3,C0,C2) :-
     p(L0,L1),
-    ingredient(L1,L2,C0,C1).
+    det(L1,L2,C0,C1),
+    ingredient(L2,L3,C1,C2).
 
 ingredient([Food | L],L,['&includeIngredients=',Food | C],C) :-
     food(Food).
@@ -89,17 +90,28 @@ food(Word) :-
     s(ID,_,Word,n,_,_),
     food_cat(HID),
     hyp(ID, HID).
-
 food(Word) :-
     s(ID,_,Word,n,_,_),
     food_cat(HHID),
     hyp(ID, HID),
     hyp(HID, HHID).
+food(PluralWord) :-
+    atom_concat(Word,s,PluralWord),
+    food(Word).
+food(PluralWord) :-
+    atom_concat(Word,es,PluralWord),
+    food(Word).
 
 % adj([Word | L],L) :-
 %     s(_,_,Word,a,_,_).
 
 noun([Word | L],L) :-
+    s(_,_,Word,n,_,_).
+noun([PluralWord | L],L) :-
+    atom_concat(Word,s,PluralWord),
+    s(_,_,Word,n,_,_).
+noun([PluralWord | L],L) :-
+    atom_concat(Word,es,PluralWord),
     s(_,_,Word,n,_,_).
 
 verb([Word | L],L) :-
