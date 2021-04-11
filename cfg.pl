@@ -40,10 +40,11 @@ mp(L0,L3,C0,C1) :-
     p(L0,L1),
     max_constraint(L1,L2),
     time_constraint(L2,L3,C0,C1).
-mp(L0,L3,C0,C2) :-
+mp(L0,L4,C0,C3) :-
     p(L0,L1),
     det(L1,L2,C0,C1),
-    ingredient(L2,L3,C1,C2).
+    ingredient(L2,L3,C1,C2),
+    additional_ingredients(L3,L4,C2,C3).
 mp(L0,L2,C0,C1) :-
     p(L0,L1),
     noun_phrase(L1,L2,C0,C1).
@@ -54,6 +55,16 @@ mp(L,L,C,C).
 
 ingredient([Food | L],L,['&includeIngredients=',Food | C],C) :-
     food(Food).
+
+additional_ingredients([and | L0],L1,C0,C1) :-
+    additional_ingredients(L0,L1,C0,C1).
+additional_ingredients([Food | L0],L1,[',',Food | C0],C1) :-
+    food(Food),
+    additional_ingredients(L0,L1,C0,C1).
+additional_ingredients([Det | L0],L1,C0,C1) :-
+    det(Det),
+    additional_ingredients(L0,L1,C0,C1).
+additional_ingredients(L,L,C,C).
 
 max_constraint([at,most | L],L).
 max_constraint([under | L],L).
@@ -68,6 +79,10 @@ det([the | L],L,C,C).
 det([a | L],L,C,C).
 det([an | L],L,C,C).
 det(L,L,C,C).
+
+det(the).
+det(a).
+det(an).
 
 % adjectives(L0,L2,C0,C2) is true if
 % L0-L2 is a sequence of adjectives that imposes constraints C0-C2
