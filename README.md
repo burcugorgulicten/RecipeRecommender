@@ -17,15 +17,7 @@ Then enter:
 q(R).
 ```
 
-The constraints it accepts:
-
-Time
-
-Ingredients
-
-Diet
-
-Cuisine
+The constraints it accepts: Time, Ingredients, Diet, Cuisine
 
 It also accepts multiple sentence structures. 
 
