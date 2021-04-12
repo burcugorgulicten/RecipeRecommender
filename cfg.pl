@@ -11,6 +11,12 @@ question([what,is | L0],L3,C0,C3) :-
     noun_phrase(L0,L1,C0,C1),
     noun_phrase(L1,L2,C1,C2),
     verb_phrase(L2,L3,C2,C3).
+question([what,are | L0],L1,C0,C1) :-
+    noun_phrase(L0,L1,C0,C1).
+question([what,are | L0],L3,C0,C3) :-
+    noun_phrase(L0,L1,C0,C1),
+    noun_phrase(L1,L2,C1,C2),
+    verb_phrase(L2,L3,C2,C3).
 question([what | L0],L4,C0,C4) :-
     noun_phrase(L0,L1,C0,C1),
     verb_phrase(L1,L2,C1,C2),
@@ -41,6 +47,10 @@ question(L0,L5,C0,C5) :-
 question(L0,L2,C0,C2) :-
     noun_phrase(L0,L1,C0,C1),
     mp(L1,L2,C1,C2).
+question(L0,L3,C0,C3) :-
+    noun_phrase(L0,L1,C0,C1),
+    noun_phrase(L1,L2,C1,C2),
+    verb_phrase(L2,L3,C2,C3).
 
 % noun_phrase(L0,L1,C0,C1) is true if C0-C1 is the constraints from noun phrase L0-L1
 noun_phrase(L0,L4,C0,C3) :-
