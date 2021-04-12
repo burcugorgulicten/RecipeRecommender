@@ -3,7 +3,7 @@ UBC CPSC 312 Project2 (Prolog)
 Recipe Recommender helps the users to decide what to prepare
 and it recommends recipes based on their input.
 It uses the API Spoonacular and natural language processing to
-get the user input to get the appropriate constraints and 
+get the appropriate constraints from the user input and 
 makes a request to create a file with the returned recipes.
 It returns at most 3 results.
 

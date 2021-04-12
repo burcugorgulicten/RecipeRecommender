@@ -1,6 +1,6 @@
 :- ensure_loaded([parse_recipe, cfg]).
 
-% Entry point
+% q(N) is true if N is the list of recipe names produced by the user's query
 q(N) :-
     write("Enter recipe query: "), flush_output(current_output),
     readln(Ln),
@@ -10,7 +10,7 @@ q(N) :-
     once(get_files(Recipes, SearchString)),
     read_names(Recipes, N).
 
-
+% for testing with JSON file instead of making API request
 q_test_JSON(Names, SearchString):-
     write("Enter recipe query: "), flush_output(current_output),
     readln(Ln),
@@ -20,8 +20,8 @@ q_test_JSON(Names, SearchString):-
     once(get_dict_from_json_file(Recipes)),
     read_names(Recipes, Names).
 
-
-% for testing (makes no requests)
+% q_test(SearchString) is true if SearchString is the parameter string from the 
+% constraints in the user's query
 q_test(SearchString) :-
     write("Enter recipe query: "), flush_output(current_output),
     readln(Ln),
@@ -40,7 +40,6 @@ combine([],'').
 combine([H|T],S) :-
     combine(T,TS),
     atom_concat(H,TS,S).
-
 
 % get the names form the list of recipes
 % read_names(R, N) is true if R is list of
