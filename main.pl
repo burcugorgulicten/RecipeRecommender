@@ -1,7 +1,7 @@
 :- ensure_loaded([parse_recipe, cfg]).
 
 % Entry point
-q(N, SearchString) :-
+q(N) :-
     write("Enter recipe query: "), flush_output(current_output),
     readln(Ln),
     get_lower_case(Ln, LC),

@@ -69,11 +69,12 @@ mp(L0,L3,C0,C1) :-
     p(L0,L1),
     max_constraint(L1,L2),
     time_constraint(L2,L3,C0,C1).
-mp(L0,L4,C0,C3) :-
+mp(L0,L5,C0,C3) :-
     p(L0,L1),
     det(L1,L2,C0,C1),
-    ingredient(L2,L3,C1,C2),
-    additional_ingredients(L3,L4,C2,C3).
+    adjectives(L2,L3,_,_),
+    ingredient(L3,L4,C1,C2),
+    additional_ingredients(L4,L5,C2,C3).
 mp(L0,L2,C0,C1) :-
     p(L0,L1),
     noun_phrase(L1,L2,C0,C1).
@@ -93,6 +94,9 @@ additional_ingredients([Food | L0],L1,[',',Food | C0],C1) :-
     additional_ingredients(L0,L1,C0,C1).
 additional_ingredients([Det | L0],L1,C0,C1) :-
     det(Det),
+    additional_ingredients(L0,L1,C0,C1).
+additional_ingredients([Adj | L0],L1,C0,C1) :-
+    adj(Adj),
     additional_ingredients(L0,L1,C0,C1).
 additional_ingredients(L,L,C,C).
 
@@ -167,6 +171,12 @@ adj([Word | L],L,C,C) :-
     dif(Word,chicken),
     s(_,_,Word,s,_,_).
 
+adj(Word) :-
+    s(_,_,Word,a,_,_).
+adj(Word) :-
+    dif(Word,chicken),
+    s(_,_,Word,s,_,_).
+
 
 % food(Word) is true if Word is an ingredient
 food(Word) :-
@@ -185,6 +195,7 @@ food(PluralWord) :-
     atom_concat(Word,es,PluralWord),
     food(Word).
 
+% noun(L0,L1) is true if L0-L1 is a noun
 noun([Word | L],L) :-
     s(_,_,Word,n,_,_).
 noun([PluralWord | L],L) :-
@@ -196,6 +207,7 @@ noun([PluralWord | L],L) :-
 noun([something | L],L).
 noun([me | L],L).
 
+% verb(L0,L1) is true if L0-L1 is a verb
 verb([has | L],L).
 verb([Word | L],L) :-
     s(_,_,Word,v,_,_).
@@ -203,6 +215,7 @@ verb([Word | L],L) :-
     atom_concat(W,s,Word),
     s(_,_,W,v,_,_).
 
+% verbs(L0,L1) is true if L0-L1 is a sequence of verbs
 verbs(L0,L2) :-
     verb(L0,L1),
     verbs(L1,L2).

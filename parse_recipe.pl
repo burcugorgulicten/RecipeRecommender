@@ -4,7 +4,7 @@
 :- ensure_loaded([list, write_recipes]).
 
 recipeInformation('&addRecipeInformation=true').
-numberOfResults('&number=1').
+numberOfResults('&number=3').
 
 % for testing
 % parses the json file eg to a prolog json atom,
