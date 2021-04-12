@@ -18,10 +18,13 @@ q(R).
 ```
 
 The constraints it accepts:
-\n
+
 Time
+
 Ingredients
+
 Diet
+
 Cuisine
 
 It also accepts multiple sentence structures. 
