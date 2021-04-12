@@ -18,6 +18,7 @@ q(R).
 ```
 
 The constraints it accepts:
+\n
 Time
 Ingredients
 Diet
