@@ -3,19 +3,13 @@
 :- use_module(library(http/http_json)).
 :- ensure_loaded([list, write_recipes]).
 
+
+% recipeInformation param for the url
+% set to true
 recipeInformation('&addRecipeInformation=true').
+% number of results to receive
+% set to 3
 numberOfResults('&number=3').
-
-% for testing
-% parses the json file eg to a prolog json atom,
-% gets the recipes, and writes them to a file
-get_dict_from_json_file(Recipes) :-
-  open('./eg.json', read, Stream),
-  json_read(Stream, json(JsonArr)),
-  get_recipes(JsonArr, Recipes),
-  write_to_file(Recipes),
-  close(Stream).
-
 
 
 % Makes the request with the given params and gets 
@@ -268,3 +262,17 @@ make_request(JSON, SearchString):-
     http_get(URL,
             JSON, 
             []).
+
+
+
+%----------------------------------------------------------------
+% FOR TESTING
+%----------------------------------------------------------------
+% parses the json file eg to a prolog json atom,
+% gets the recipes, and writes them to a file
+get_dict_from_json_file(Recipes) :-
+  open('./eg.json', read, Stream),
+  json_read(Stream, json(JsonArr)),
+  get_recipes(JsonArr, Recipes),
+  write_to_file(Recipes),
+  close(Stream).

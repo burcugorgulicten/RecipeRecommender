@@ -10,25 +10,6 @@ q(N) :-
     once(get_files(Recipes, SearchString)),
     read_names(Recipes, N).
 
-% for testing with JSON file instead of making API request
-q_test_JSON(Names, SearchString):-
-    write("Enter recipe query: "), flush_output(current_output),
-    readln(Ln),
-    get_lower_case(Ln, LC),
-    remove_commas(LC, Q),
-    once(get_search_string(Q, SearchString)),
-    once(get_dict_from_json_file(Recipes)),
-    read_names(Recipes, Names).
-
-% q_test(SearchString) is true if SearchString is the parameter string from the 
-% constraints in the user's query
-q_test(SearchString) :-
-    write("Enter recipe query: "), flush_output(current_output),
-    readln(Ln),
-    get_lower_case(Ln, LC),
-    remove_commas(LC, Q),
-    once(get_search_string(Q, SearchString)).
-
 % get_search_string(Q,S) is true if C is a search string with constraints from question Q
 get_search_string(Q,S) :-
     question(Q,End,C,[]),
@@ -69,3 +50,27 @@ remove_commas([','|T],R) :-
 remove_commas([H|T],[H|R]) :-
     dif(',',H),
     remove_commas(T,R).
+
+
+%----------------------------------------------------------------
+% FOR TESTING
+%----------------------------------------------------------------
+
+% for testing with JSON file instead of making API request
+q_test_JSON(Names, SearchString):-
+    write("Enter recipe query: "), flush_output(current_output),
+    readln(Ln),
+    get_lower_case(Ln, LC),
+    remove_commas(LC, Q),
+    once(get_search_string(Q, SearchString)),
+    once(get_dict_from_json_file(Recipes)),
+    read_names(Recipes, Names).
+
+% q_test(SearchString) is true if SearchString is the parameter string from the 
+% constraints in the user's query
+q_test(SearchString) :-
+    write("Enter recipe query: "), flush_output(current_output),
+    readln(Ln),
+    get_lower_case(Ln, LC),
+    remove_commas(LC, Q),
+    once(get_search_string(Q, SearchString)).
